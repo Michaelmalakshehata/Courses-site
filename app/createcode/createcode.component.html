@@ -1,0 +1,32 @@
+<div class=" m-auto text-center p-3">
+  <button (click)="refresh()" class="btn btn-primary text-center m-auto ">تحديث</button>
+</div>
+<div class="text-center" id="content">
+  
+    <table class="table  table-bordered mt-3 ">
+      <thead class=" text-center" style="background:#2b6777 ;color:white">
+        <tr >
+            <th>الايميل</th>
+            <th>أسم المستخدم</th>
+            <th>كود الكورس</th>
+            <th>أسم الكورس</th>
+            <th> السعر النهائى بعد الخصم</th>
+            <th>الخيارات</th>
+        </tr>
+      </thead>
+      <tbody class="m-1">
+      <tr *ngFor="let item of purchastlist">
+        <td>{{item.email}}</td>
+        <td>{{item.username}}</td>
+        <td>{{item.courseid}}</td>
+        <td>{{item.name}}</td>
+        <td>{{item.finalprice}}</td>
+
+        <td>
+          <button (click)="active(item.email,item.courseid,item.id)" class="btn btn-success ">تفعيل</button>
+          <button (click)="delete(item.id)" class="btn btn-danger" style="margin: 1rem;">أزاله</button>
+        </td>
+      </tr>
+    </tbody>
+    </table>
+</div>

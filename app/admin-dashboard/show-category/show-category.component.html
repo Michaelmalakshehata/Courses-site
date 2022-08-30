@@ -1,7 +1,7 @@
-<button type="button" class="btn btn-primary m-auto text-center " data-bs-toggle="modal" data-bs-target="#categorymodal"
+<button type="button" class="btn  m-2 text-center bt" data-bs-toggle="modal" data-bs-target="#categorymodal"
 (click)="addClick()"
 data-bs-backdrop="static" data-bs-keyboard="false">أضافه عنوان جديد</button>
-  <div class="modal fade" id="categorymodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="categorymodal"data-bs-backdrop="static" data-bs-static="true" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mdal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -17,26 +17,28 @@ data-bs-backdrop="static" data-bs-keyboard="false">أضافه عنوان جدي�
       </div>
     </div>
   </div>
-<table class="table  table-bordered mt-3 table-striped table-success">
-      <thead class="m-1">
-        <tr >
-            <th>الكود</th>
-            <th>العنوان</th>
-            <th>كود الكورس</th>
-            <th>الخيارات</th>
+<div class="text-center" id="content">
+  <table class="table  table-bordered mt-3 ">
+        <thead class=" text-center" style="background:#2b6777 ;color:white">
+          <tr >
+              <th>الكود</th>
+              <th>العنوان</th>
+              <th>كود الكورس</th>
+              <th>الخيارات</th>
+          </tr>
+        </thead>
+        <tbody class="m-1">
+        <tr *ngFor="let item of categorylist">
+          <td>{{item.id}}</td>
+          <td>{{item.name}}</td>
+          <td>{{item.course_Detailesid}}</td>
+          <td>
+              <button type="button" class="btn btn-outline-success text-dark m-1"data-bs-toggle="modal" data-bs-target="#categorymodal"
+              (click)="editClick(item)"
+              data-bs-backdrop="static" data-bs-keyboard="false">تعديل</button>
+              <button type="button" class="btn btn-outline-danger m-1"(click)="delete(item)">مسح</button>
+          </td>
         </tr>
-      </thead>
-      <tbody class="m-1">
-       <tr *ngFor="let item of categorylist">
-        <td>{{item.id}}</td>
-        <td>{{item.name}}</td>
-        <td>{{item.course_Detailesid}}</td>
-        <td>
-            <button type="button" class="btn btn-outline-success text-dark m-1"data-bs-toggle="modal" data-bs-target="#categorymodal"
-            (click)="editClick(item)"
-            data-bs-backdrop="static" data-bs-keyboard="false">تعديل</button>
-            <button type="button" class="btn btn-outline-danger m-1"(click)="delete(item)">مسح</button>
-        </td>
-       </tr>
-     </tbody>
-</table>
+      </tbody>
+  </table>
+</div>

@@ -1,4 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 import { ICoursesDetails, IData } from 'src/app/models/classes';
 import { ApiService } from 'src/app/services/api.service';
 import { CoursesapiService } from 'src/app/services/coursesapi.service';
@@ -16,31 +19,100 @@ export class AddEditCoursesComponent implements OnInit {
  ActivateAddEditcrsC:boolean=true;
  
  res:IData[]=[];
- // imgpath:string="";
- //   price:number=0;
- //   discount:number=0;
- //   discription:string="";
- //   numberofvideos:string="";
- //   numberofhours:string="";
- //   date:string="";
- 
- constructor(private service:CoursesapiService,private sendbroadcast:ApiService) { }
+ now=new Date();
+ form!:FormGroup
+  submitted = false;
+  isSet = false;
+  exist:boolean=false;
+  errorexist:boolean=false;
+  coursesList:any[]=[];
+ constructor(private formBuilder: FormBuilder,private service:CoursesapiService,private sendbroadcast:ApiService,private toastr:ToastrService) { }
 
 
  ngOnInit(): void {
-   // this.id=this.course.id;
-   // this.name=this.course.name;
-   // this.code=this.course.code;
-   // this.imgpath=this.course.imgpath;
-   // this.price=this.course.price;
-   // this.discount=this.course.discount;
-   // this.discription=this.course.discription;
-   // this.numberofvideos=this.course.numberofvideos;
-   // this.numberofhours=this.course.numberofhours;
-   // this.date=this.course.date;
- }
- onSubmit(){
+  this.service.getAllCourses().subscribe({next:(res: ICoursesDetails[])=>{this.coursesList=res},
+  error:(err)=>{throw new Error(err)}} );
 
+  this.form = this.formBuilder.group(
+    {
+      
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+         
+        ],
+      ],
+      price: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^(?![0]$)\d{1,10}$/),
+         
+        ],
+      ],
+      discount: [
+        '',
+        [
+          Validators.pattern(/^\d{0,2}$/)
+         
+        ],
+      ],
+      description: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+         
+        ],
+      ],
+      numberofvideos: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^(?![0]$)\d{1,10}$/),
+         
+        ],
+      ],
+      numberofhours: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^(?![0]$)\d{1,10}$/),
+         
+        ],
+      ],
+
+      imgpath:[
+        '',
+        [
+          Validators.required
+        ],
+      ]
+
+    }
+  );
+ }
+
+ get f(): { [key: string]: AbstractControl } {
+  return this.form.controls;
+}
+ onSubmit(): void {
+  this.exist=this.coursesList.some(element=> element.name===this.course.name);
+  this.submitted = true;
+  this.isSet = true;
+  if (this.form.invalid ) {
+    return;
+    
+     }
+     else if(this.exist==true)
+     {
+      this.errorexist=true;
+         return;
+     }
+else{
+  this.errorexist=false;
    if(this.course.id ==0){
      var val1={
        "name": this.course.name,
@@ -50,26 +122,24 @@ export class AddEditCoursesComponent implements OnInit {
        "description": this.course.description,
        "numberofvideos": this.course.numberofvideos,
        "numberofhours": this.course.numberofhours,
-       "date": this.course.date,
-       "code": this.course.code
+       "date":this.now.toLocaleDateString()      
        }
-      this.service.AddCourse(val1).subscribe((res: any)=>{console.log(res)} );
+       this.service.AddCourse(val1).subscribe({next:res=>this.toastr.success("تم اضافه الكورس  بنجاح"), 
+       error:(err)=>{throw new Error(err)}});
       var emalsend={subject:"تم أضافه كورس جديد",body:this.course.name}
-      this.sendbroadcast.sendbroadcast(emalsend).subscribe(res=>console.log(res));
-     }
+      this.sendbroadcast.sendbroadcast(emalsend).subscribe({next:res=>this.toastr.success("تم ارسال اشعار اضافه كورس الى جميع المشتركين بنجاح"),
+      error:(err)=>{throw new Error(err)}});     }
    else{
-     this.EditCourse(this.course);}
-   
-     this.ActivateAddEditcrsC=false;
+     this.EditCourse(this.course);
+    }
+  }
      this.sendData();
-
-   
  }
 
  EditCourse(dataitem:ICoursesDetails){
    this.course = dataitem;
-   this.service.UpdateCourse(this.course.id,this.course).subscribe((res: any)=>{console.log(res)})   
-   
+   this.service.UpdateCourse(this.course.id,this.course).subscribe({next:res=>this.toastr.success("تم التعديل بنجاح"), 
+   error:(err)=>{throw new Error(err)}   })      
  }
 
  uploadPhoto(event:any){
@@ -77,7 +147,7 @@ export class AddEditCoursesComponent implements OnInit {
    const formData:FormData=new FormData();
    formData.append('files',file);
 
-   this.service.UploadPhoto(formData).subscribe((data)=>{
+   this.service.UploadPhoto(formData).subscribe({next:(data)=>{
      
      this.res=data as IData[]; 
      
@@ -86,7 +156,7 @@ export class AddEditCoursesComponent implements OnInit {
      
 
      }
-   });
+   }, error:(err)=>{throw new Error(err)}});
  }
 
  sendData(){
